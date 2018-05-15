@@ -1,76 +1,80 @@
 import XCTest
 
 /* Two hash functions, adapted from
-    http://www.cse.yorku.ca/~oz/hash.html */
+ http://www.cse.yorku.ca/~oz/hash.html */
 
-func djb2(x: String) -> Int {
-    var hash = 5381
+func djb2(_ x: String) -> Int {
+  var hash = 5381
 
-    for char in x.characters {
-        hash = ((hash << 5) &+ hash) &+ char.hashValue
-    }
+  for char in x.characters {
+    hash = ((hash << 5) &+ hash) &+ char.hashValue
+  }
 
-    return Int(hash)
+  return Int(hash)
 }
 
-func sdbm(x: String) -> Int {
-    var hash = 0
+func sdbm(_ x: String) -> Int {
+  var hash = 0
 
-    for char in x.characters {
-        hash = char.hashValue &+ (hash << 6) &+ (hash << 16) &- hash
-    }
+  for char in x.characters {
+    hash = char.hashValue &+ (hash << 6) &+ (hash << 16) &- hash
+  }
 
-    return Int(hash)
+  return Int(hash)
 }
-
 
 class BloomFilterTests: XCTestCase {
-
-    func testSingleHashFunction() {
-        let bloom = BloomFilter<String>(hashFunctions: [djb2])
-
-        bloom.insert("Hello world!")
-
-        let result_good = bloom.query("Hello world!")
-        let result_bad = bloom.query("Hello world")
-
-        XCTAssertTrue(result_good)
-        XCTAssertFalse(result_bad)
+    func testSwift4(){
+        // last checked with Xcode 9.0b4
+        #if swift(>=4.0)
+            print("Hello, Swift 4!")
+        #endif
     }
+  func testSingleHashFunction() {
+    let bloom = BloomFilter<String>(hashFunctions: [djb2])
 
-    func testEmptyFilter() {
-        let bloom = BloomFilter<String>(hashFunctions: [djb2])
+    bloom.insert("Hello world!")
 
-        let empty = bloom.isEmpty()
+    let result_good = bloom.query("Hello world!")
+    let result_bad = bloom.query("Hello world")
 
-        XCTAssertTrue(empty)
-    }
+    XCTAssertTrue(result_good)
+    XCTAssertFalse(result_bad)
+  }
 
-    func testMultipleHashFunctions() {
-        let bloom = BloomFilter<String>(hashFunctions: [djb2, sdbm])
+  func testEmptyFilter() {
+    let bloom = BloomFilter<String>(hashFunctions: [djb2])
 
-        bloom.insert("Hello world!")
+    let empty = bloom.isEmpty()
 
-        let result_good = bloom.query("Hello world!")
-        let result_bad = bloom.query("Hello world")
+    XCTAssertTrue(empty)
+  }
 
-        XCTAssertTrue(result_good)
-        XCTAssertFalse(result_bad)
-    }
+  func testMultipleHashFunctions() {
+    let bloom = BloomFilter<String>(hashFunctions: [djb2, sdbm])
 
-    func testFalsePositive() {
-        let bloom = BloomFilter<String>(size: 5, hashFunctions: [djb2, sdbm])
+    bloom.insert("Hello world!")
 
-        bloom.insert(["hello", "elloh", "llohe", "lohel", "ohell"])
+    let result_good = bloom.query("Hello world!")
+    let result_bad = bloom.query("Hello world")
 
-        print("Inserted")
+    XCTAssertTrue(result_good)
+    XCTAssertFalse(result_bad)
+  }
 
-        let query = bloom.query("This wasn't inserted!")
+  func testFalsePositive() {
+    let bloom = BloomFilter<String>(size: 5, hashFunctions: [djb2, sdbm])
 
-        // This is true even though we did not insert the value in the Bloom filter;
-        // the Bloom filter is capable of producing false positives but NOT
-        // false negatives.
+    bloom.insert(["hello", "elloh", "llohe", "lohel", "ohell"])
 
-        XCTAssertTrue(query)
-    }
+    print("Inserted")
+
+    let query = bloom.query("This wasn't inserted!")
+
+    // This is true even though we did not insert the value in the Bloom filter;
+    // the Bloom filter is capable of producing false positives but NOT
+    // false negatives.
+
+    XCTAssertTrue(query)
+  }
 }

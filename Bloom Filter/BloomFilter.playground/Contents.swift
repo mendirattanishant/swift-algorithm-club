@@ -1,35 +1,38 @@
 //: Playground - noun: a place where people can play
-
+// last checked with Xcode 9.0b4
+#if swift(>=4.0)
+print("Hello, Swift 4!")
+#endif
 public class BloomFilter<T> {
-  private var array: [Bool]
-  private var hashFunctions: [T -> Int]
+  fileprivate var array: [Bool]
+  private var hashFunctions: [(T) -> Int]
 
-  public init(size: Int = 1024, hashFunctions: [T -> Int]) {
-    self.array = .init(count: size, repeatedValue: false)
+  public init(size: Int = 1024, hashFunctions: [(T) -> Int]) {
+    self.array = [Bool](repeating: false, count: size)
     self.hashFunctions = hashFunctions
   }
 
-  private func computeHashes(value: T) -> [Int] {
-    return hashFunctions.map() { hashFunc in abs(hashFunc(value) % array.count) }
+  private func computeHashes(_ value: T) -> [Int] {
+    return hashFunctions.map { hashFunc in abs(hashFunc(value) % array.count) }
   }
 
-  public func insert(element: T) {
+  public func insert(_ element: T) {
     for hashValue in computeHashes(element) {
       array[hashValue] = true
     }
   }
 
-  public func insert(values: [T]) {
+  public func insert(_ values: [T]) {
     for value in values {
       insert(value)
     }
   }
 
-  public func query(value: T) -> Bool {
+  public func query(_ value: T) -> Bool {
     let hashValues = computeHashes(value)
 
     // Map hashes to indices in the Bloom Filter
-    let results = hashValues.map() { hashValue in array[hashValue] }
+    let results = hashValues.map { hashValue in array[hashValue] }
 
     // All values must be 'true' for the query to return true
 
@@ -37,7 +40,7 @@ public class BloomFilter<T> {
     // only that it may be. If the query returns false, however,
     // you can be certain that the value was not added.
 
-    let exists = results.reduce(true, combine: { $0 && $1 })
+    let exists = results.reduce(true, { $0 && $1 })
     return exists
   }
 
@@ -46,8 +49,6 @@ public class BloomFilter<T> {
     return array.reduce(true) { prev, next in prev && !next }
   }
 }
-
-
 
 /* Two hash functions, adapted from http://www.cse.yorku.ca/~oz/hash.html */
 
@@ -66,8 +67,6 @@ func sdbm(x: String) -> Int {
   }
   return Int(hash)
 }
-
-
 
 /* A simple test */
 

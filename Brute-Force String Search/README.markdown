@@ -28,21 +28,21 @@ Here is a brute-force solution:
 
 ```swift
 extension String {
-  func indexOf(pattern: String) -> String.Index? {
-    for i in self.startIndex ..< self.endIndex {
-      var j = i
-      var found = true
-      for p in pattern.startIndex ..< pattern.endIndex {
-        if j == self.endIndex || self[j] != pattern[p] {
-          found = false
-          break
-        } else {
-          j = j.successor()
+  func indexOf(_ pattern: String) -> String.Index? {
+    for i in self.characters.indices {
+        var j = i
+        var found = true
+        for p in pattern.characters.indices{
+            if j == self.characters.endIndex || self[j] != pattern[p] {
+                found = false
+                break
+            } else {
+                j = self.characters.index(after: j)
+            }
         }
-      }
-      if found {
-        return i
-      }
+        if found {
+            return i
+        }
     }
     return nil
   }
@@ -51,6 +51,6 @@ extension String {
 
 This looks at each character in the source string in turn. If the character equals the first character of the search pattern, then the inner loop checks whether the rest of the pattern matches. If no match is found, the outer loop continues where it left off. This repeats until a complete match is found or the end of the source string is reached.
 
-The brute-force approach works OK, but it's not very efficient (or pretty). It should work fine on small strings, though. For a smarter algorithm that works better with large chunks of text, check out [Boyer-Moore](../Boyer-Moore/) string search.
+The brute-force approach works OK, but it's not very efficient (or pretty). It should work fine on small strings, though. For a smarter algorithm that works better with large chunks of text, check out [Boyer-Moore](../Boyer-Moore-Horspool) string search.
 
 *Written for Swift Algorithm Club by Matthijs Hollemans*

@@ -1,4 +1,9 @@
-func fizzBuzz(numberOfTurns: Int) {
+// last checked with Xcode 9.0b4
+#if swift(>=4.0)
+print("Hello, Swift 4!")
+#endif
+
+func fizzBuzz(_ numberOfTurns: Int) {
   for i in 1...numberOfTurns {
     var result = ""
 

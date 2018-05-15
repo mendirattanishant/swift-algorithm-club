@@ -85,7 +85,7 @@ public class Edge: Root {
 			// For each child, erase it, then remove it from the children array.
 			for _ in 0...children.count-1 {
 				children[0].erase()
-				children.removeAtIndex(0)
+				children.remove(at: 0)
 			}
 		}
 	}
@@ -137,7 +137,7 @@ public class RadixTree {
 	}
 
 	// Inserts a string into the tree.
-	public func insert(str: String) -> Bool {
+	public func insert(_ str: String) -> Bool {
 		//Account for a blank input. The empty string is already in the tree.
 		if str == "" {
 			return false
@@ -181,10 +181,10 @@ public class RadixTree {
 				else if shared == e.label {
 					currEdge = e
 					var tempIndex = searchStr.startIndex
-					for _ in 1...shared.characters.count {
-						tempIndex = tempIndex.successor()
+					for _ in 1...shared.count {
+						tempIndex = searchStr.index(after: tempIndex)
 					}
-					searchStr = searchStr.substringFromIndex(tempIndex)
+                    searchStr = String(searchStr[tempIndex...])
 					found = true
 					break
 				}
@@ -192,18 +192,18 @@ public class RadixTree {
 				// If the child's label and the search string share a partial prefix,
 				// then both the label and the search string need to be substringed
 				// and a new branch needs to be created
-				else if shared.characters.count > 0 {
-					var labelIndex = e.label.characters.startIndex
+				else if shared.count > 0 {
+					var labelIndex = e.label.startIndex
 
 					// Create index objects and move them to after the shared prefix
-					for _ in 1...shared.characters.count {
-						index = index.successor()
-						labelIndex = labelIndex.successor()
+					for _ in 1...shared.count {
+                        index = searchStr.index(after: index)
+						labelIndex = e.label.index(after: labelIndex)
 					}
 
 					// Substring both the search string and the label from the shared prefix
-					searchStr = searchStr.substringFromIndex(index)
-					e.label = e.label.substringFromIndex(labelIndex)
+                    searchStr = String(searchStr[index...])
+                    e.label = String(e.label[labelIndex...])
 
 					// Create 2 new edges and update parent/children values
 					let newEdge = Edge(e.label)
@@ -236,7 +236,7 @@ public class RadixTree {
 	}
 
 	// Tells you if a string is in the tree
-	public func find(str: String) -> Bool {
+	public func find(_ str: String) -> Bool {
 		// A radix tree always contains the empty string
 		if str == "" {
 			return true
@@ -266,16 +266,16 @@ public class RadixTree {
 				if shared == c.label {
 					currEdge = c
 					var tempIndex = searchStr.startIndex
-					for _ in 1...shared.characters.count {
-						tempIndex = tempIndex.successor()
+					for _ in 1...shared.count {
+						tempIndex = searchStr.index(after: tempIndex)
 					}
-					searchStr = searchStr.substringFromIndex(tempIndex)
+					searchStr = String(searchStr[tempIndex...])
 					found = true
 					break
 				}
 
 				// If the shared string is empty, go to the next child
-				else if shared.characters.count == 0 {
+				else if shared.count == 0 {
 					continue
 				}
 
@@ -287,7 +287,7 @@ public class RadixTree {
 				// If the search string and the child's label only share some characters,
 				// the string is not in the tree, return false
 				else if shared[shared.startIndex] == c.label[c.label.startIndex] &&
-				  shared.characters.count < c.label.characters.count {
+				  shared.count < c.label.count {
 				  	return false
 				}
 			}
@@ -300,12 +300,12 @@ public class RadixTree {
 	}
 
 	// Removes a string from the tree
-	public func remove(str: String) -> Bool {
+	public func remove(_ str: String) -> Bool {
 		// Removing the empty string removes everything in the tree
 		if str == "" {
 			for c in root.children {
 				c.erase()
-				root.children.removeAtIndex(0)
+				root.children.remove(at: 0)
 			}
 			return true
 		}
@@ -329,7 +329,7 @@ public class RadixTree {
 				// and everything below it in the tree
 				if currEdge.children[c].label == searchStr {
 					currEdge.children[c].erase()
-					currEdge.children.removeAtIndex(c)
+					currEdge.children.remove(at: c)
 					return true
 				}
 
@@ -340,10 +340,10 @@ public class RadixTree {
 				if shared == currEdge.children[c].label {
 					currEdge = currEdge.children[c]
 					var tempIndex = searchStr.startIndex
-					for _ in 1...shared.characters.count {
-						tempIndex = tempIndex.successor()
+					for _ in 1...shared.count {
+						tempIndex = searchStr.index(after: tempIndex)
 					}
-					searchStr = searchStr.substringFromIndex(tempIndex)
+					searchStr = String(searchStr[tempIndex...])
 					found = true
 					break
 				}
@@ -364,15 +364,15 @@ public class RadixTree {
 
 // Returns the prefix that is shared between the two input strings
 // i.e. sharedPrefix("court", "coral") -> "co"
-public func sharedPrefix(str1: String, _ str2: String) -> String {
+public func sharedPrefix(_ str1: String, _ str2: String) -> String {
 	var temp = ""
-	var c1 = str1.characters.startIndex
-	var c2 = str2.characters.startIndex
-	for _ in 0...min(str1.characters.count-1, str2.characters.count-1) {
+	var c1 = str1.startIndex
+	var c2 = str2.startIndex
+	for _ in 0...min(str1.count-1, str2.count-1) {
 		if str1[c1] == str2[c2] {
 			temp.append( str1[c1] )
-			c1 = c1.successor()
-			c2 = c2.successor()
+            c1 = str1.index(after:c1)
+            c2 = str2.index(after:c2)
 		} else {
 			return temp
 		}

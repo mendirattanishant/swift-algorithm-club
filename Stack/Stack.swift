@@ -1,38 +1,36 @@
 /*
-  Last-in first-out stack (LIFO)
-
-  Push and pop are O(1) operations.
-*/
+ Last-in first-out stack (LIFO)
+ Push and pop are O(1) operations.
+ */
 public struct Stack<T> {
-  private var array = [T]()
-
+  fileprivate var array = [T]()
+  
   public var isEmpty: Bool {
     return array.isEmpty
   }
-
+  
   public var count: Int {
     return array.count
   }
-
-  public mutating func push(element: T) {
+  
+  public mutating func push(_ element: T) {
     array.append(element)
   }
-
+  
   public mutating func pop() -> T? {
     return array.popLast()
   }
-
-  public func peek() -> T? {
+  
+  public var top: T? {
     return array.last
   }
 }
 
-extension Stack: SequenceType {
-    public func generate() -> AnyGenerator<T> {
-        var curr = self
-        return AnyGenerator {
-            _ -> T? in
-            return curr.pop()
-        }
+extension Stack: Sequence {
+  public func makeIterator() -> AnyIterator<T> {
+    var curr = self
+    return AnyIterator {
+      return curr.pop()
     }
+  }
 }

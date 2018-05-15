@@ -1,5 +1,7 @@
 # Segment Tree
 
+> For an example on lazy propagation, see this [article](https://github.com/raywenderlich/swift-algorithm-club/tree/master/Segment%20Tree/LazyPropagation).
+
 I'm pleased to present to you Segment Tree. It's actually one of my favorite data structures because it's very flexible and simple in realization.
 
 Let's suppose that you have an array **a** of some type and some associative function **f**. For example, the function can be sum, multiplication, min, max, [gcd](../GCD/), and so on.
@@ -18,7 +20,7 @@ var a = [ 20, 3, -1, 101, 14, 29, 5, 61, 99 ]
 We want to query this array on the interval from 3 to 7 for the function "sum". That means we do the following:
 
 	101 + 14 + 29 + 5 + 61 = 210
-	
+
 because `101` is at index 3 in the array and `61` is at index 7. So we pass all the numbers between `101` and `61` to the sum function, which adds them all up. If we had used the "min" function, the result would have been `5` because that's the smallest number in the interval from 3 to 7.
 
 Here's naive approach if our array's type is `Int` and **f** is just the sum of two integers:
@@ -43,7 +45,7 @@ The main idea of segment trees is simple: we precalculate some segments in our a
 
 ## Structure of segment tree
 
-A segment tree is just a [binary tree](../Binary Tree/) where each node is an instance of the `SegmentTree` class:
+A segment tree is just a [binary tree](../Binary%20Tree/) where each node is an instance of the `SegmentTree` class:
 
 ```swift
 public class SegmentTree<T> {
@@ -73,7 +75,7 @@ The `leftBound` and `rightBound` of each node are marked in red.
 Here's how we create a node of the segment tree:
 
 ```swift
-public init(array: [T], leftBound: Int, rightBound: Int, function: (T, T) -> T) {
+public init(array: [T], leftBound: Int, rightBound: Int, function: @escaping (T, T) -> T) {
     self.leftBound = leftBound
     self.rightBound = rightBound
     self.function = function
@@ -111,27 +113,27 @@ We go through all this trouble so we can efficiently query the tree.
 Here's the code:
 
 ```swift
-  public func queryWithLeftBound(leftBound: Int, rightBound: Int) -> T {
+  public func query(withLeftBound: leftBound: Int, rightBound: Int) -> T {
     // 1
     if self.leftBound == leftBound && self.rightBound == rightBound {
       return self.value
     }
-    
+
     guard let leftChild = leftChild else { fatalError("leftChild should not be nil") }
     guard let rightChild = rightChild else { fatalError("rightChild should not be nil") }
-    
+
     // 2
     if leftChild.rightBound < leftBound {
-      return rightChild.queryWithLeftBound(leftBound, rightBound: rightBound)
-      
+      return rightChild.query(withLeftBound: leftBound, rightBound: rightBound)
+
     // 3
     } else if rightChild.leftBound > rightBound {
-      return leftChild.queryWithLeftBound(leftBound, rightBound: rightBound)
-      
+      return leftChild.query(withLeftBound: leftBound, rightBound: rightBound)
+
     // 4
     } else {
-      let leftResult = leftChild.queryWithLeftBound(leftBound, rightBound: leftChild.rightBound)
-      let rightResult = rightChild.queryWithLeftBound(rightChild.leftBound, rightBound: rightBound)
+      let leftResult = leftChild.query(withLeftBound: leftBound, rightBound: leftChild.rightBound)
+      let rightResult = rightChild.query(withLeftBound: rightChild.leftBound, rightBound: rightBound)
       return function(leftResult, rightResult)
     }
   }
@@ -162,10 +164,10 @@ let array = [1, 2, 3, 4]
 
 let sumSegmentTree = SegmentTree(array: array, function: +)
 
-sumSegmentTree.queryWithLeftBound(0, rightBound: 3)  // 1 + 2 + 3 + 4 = 10
-sumSegmentTree.queryWithLeftBound(1, rightBound: 2)  // 2 + 3 = 5
-sumSegmentTree.queryWithLeftBound(0, rightBound: 0)  // just 1
-sumSegmentTree.queryWithLeftBound(3, rightBound: 3)  // just 4
+sumSegmentTree.query(withLeftBound: 0, rightBound: 3)  // 1 + 2 + 3 + 4 = 10
+sumSegmentTree.query(withLeftBound: 1, rightBound: 2)  // 2 + 3 = 5
+sumSegmentTree.query(withLeftBound: 0, rightBound: 0)  // just 1
+sumSegmentTree.query(withLeftBound: 3, rightBound: 3)  // just 4
 ```
 
 Querying the tree takes **O(log n)** time.
@@ -177,27 +179,29 @@ The value of a node in the segment tree depends on the nodes below it. So if we 
 Here is the code:
 
 ```swift
-  public func replaceItemAtIndex(index: Int, withItem item: T) {
+  public func replaceItem(at index: Int, withItem item: T) {
     if leftBound == rightBound {
       value = item
     } else if let leftChild = leftChild, rightChild = rightChild {
       if leftChild.rightBound >= index {
-        leftChild.replaceItemAtIndex(index, withItem: item)
+        leftChild.replaceItem(at: index, withItem: item)
       } else {
-        rightChild.replaceItemAtIndex(index, withItem: item)
+        rightChild.replaceItem(at: index, withItem: item)
       }
       value = function(leftChild.value, rightChild.value)
     }
   }
 ```
 
-As usual, this works with recursion. If the node is a leaf, we just change its value. If the node is not a leaf, then we recursively call `replaceItemAtIndex()` to update its children. After that, we recalculate the node's own value so that it is up-to-date again.
+As usual, this works with recursion. If the node is a leaf, we just change its value. If the node is not a leaf, then we recursively call `replaceItem(at: )` to update its children. After that, we recalculate the node's own value so that it is up-to-date again.
 
 Replacing an item takes **O(log n)** time.
 
 See the playground for more examples of how to use the segment tree.
 
 ## See also
+
+[Lazy Propagation](https://github.com/raywenderlich/swift-algorithm-club/tree/master/Segment%20Tree/LazyPropagation) implementation and explanation.
 
 [Segment tree at PEGWiki](http://wcipeg.com/wiki/Segment_tree)
 

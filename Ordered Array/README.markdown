@@ -8,28 +8,28 @@ The implementation is quite basic. It's simply a wrapper around Swift's built-in
 
 ```swift
 public struct OrderedArray<T: Comparable> {
-  private var array = [T]()
-  
+  fileprivate var array = [T]()
+
   public init(array: [T]) {
-    self.array = array.sort()
+    self.array = array.sorted()
   }
 
   public var isEmpty: Bool {
     return array.isEmpty
   }
-  
+
   public var count: Int {
     return array.count
   }
-  
+
   public subscript(index: Int) -> T {
     return array[index]
   }
-  
+
   public mutating func removeAtIndex(index: Int) -> T {
-    return array.removeAtIndex(index)
+    return array.remove(at: index)
   }
-  
+
   public mutating func removeAll() {
     array.removeAll()
   }
@@ -47,13 +47,13 @@ As you can see, all these methods simply call the corresponding method on the in
 What remains is the `insert()` function. Here is an initial stab at it:
 
 ```swift
-  public mutating func insert(newElement: T) -> Int {
+  public mutating func insert(_ newElement: T) -> Int {
     let i = findInsertionPoint(newElement)
-    array.insert(newElement, atIndex: i)
+    array.insert(newElement, at: i)
     return i
   }
 
-  private func findInsertionPoint(newElement: T) -> Int {
+  private func findInsertionPoint(_ newElement: T) -> Int {
     for i in 0..<array.count {
       if newElement <= array[i] {
         return i
@@ -63,7 +63,7 @@ What remains is the `insert()` function. Here is an initial stab at it:
   }
 ```
 
-The helper function `findInsertionPoint()` simply iterates through the entire array, looking for the right place to insert the new element. 
+The helper function `findInsertionPoint()` simply iterates through the entire array, looking for the right place to insert the new element.
 
 > **Note:** Quite conveniently, `array.insert(... atIndex: array.count)` adds the new object to the end of the array, so if no suitable insertion point was found we can simply return `array.count` as the index.
 
@@ -81,31 +81,35 @@ a.insert(10)   // inserted at index 8
 a              // [-2, -1, 1, 3, 4, 5, 7, 9, 10]
 ```
 
-The array's contents will always be sorted from low to high, now matter what. 
+The array's contents will always be sorted from low to high, now matter what.
 
-Unfortunately, the current `findInsertionPoint()` function is a bit slow. In the worst case, it needs to scan through the entire array. We can speed this up by using a [binary search](../Binary Search) to find the insertion point.
+Unfortunately, the current `findInsertionPoint()` function is a bit slow. In the worst case, it needs to scan through the entire array. We can speed this up by using a [binary search](../Binary%20Search) to find the insertion point.
 
 Here is the new version:
 
 ```swift
-  private func findInsertionPoint(newElement: T) -> Int {
-    var range = 0..<array.count
-    while range.startIndex < range.endIndex {
-      let midIndex = range.startIndex + (range.endIndex - range.startIndex) / 2
-      if array[midIndex] == newElement {
-        return midIndex
-      } else if array[midIndex] < newElement {
-        range.startIndex = midIndex + 1
-      } else {
-        range.endIndex = midIndex
-      }
+  private func findInsertionPoint(_ newElement: T) -> Int {
+    var startIndex = 0
+    var endIndex = array.count
+
+    while startIndex < endIndex {
+        let midIndex = startIndex + (endIndex - startIndex) / 2
+        if array[midIndex] == newElement {
+            return midIndex
+        } else if array[midIndex] < newElement {
+            startIndex = midIndex + 1
+        } else {
+            endIndex = midIndex
+        }
     }
-    return range.startIndex
+    return startIndex
   }
 ```
 
 The big difference with a regular binary search is that this doesn't return `nil` when the value can't be found, but the array index where the element would have been. That's where we insert the new object.
 
 Note that using binary search doesn't change the worst-case running time complexity of `insert()`. The binary search itself takes only **O(log n)** time, but inserting a new object in the middle of an array still involves shifting all remaining elements in memory. So overall, the time complexity is still **O(n)**. But in practice this new version definitely is a lot faster, especially on large arrays.
+
+A more complete and production ready [SortedArray](https://github.com/ole/SortedArray) is avalible from [Ole Begemann](https://github.com/ole). The [accompanying article](https://oleb.net/blog/2017/02/sorted-array/) explains the advantages and tradeoffs.
 
 *Written for Swift Algorithm Club by Matthijs Hollemans*

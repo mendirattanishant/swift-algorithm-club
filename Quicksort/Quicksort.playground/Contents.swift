@@ -1,11 +1,15 @@
 //: Playground - noun: a place where people can play
 
-import Foundation
+// last checked with Xcode 9.0b4
+#if swift(>=4.0)
+print("Hello, Swift 4!")
+#endif
 
+import Foundation
 
 // *** Simple but inefficient version of quicksort ***
 
-func quicksort<T: Comparable>(a: [T]) -> [T] {
+func quicksort<T: Comparable>(_ a: [T]) -> [T] {
   guard a.count > 1 else { return a }
 
   let pivot = a[a.count/2]
@@ -23,8 +27,6 @@ func quicksort<T: Comparable>(a: [T]) -> [T] {
 let list1 = [ 10, 0, 3, 9, 2, 14, 8, 27, 1, 5, 8, -1, 26 ]
 quicksort(list1)
 
-
-
 // *** Using Lomuto partitioning ***
 
 /*
@@ -34,7 +36,7 @@ quicksort(list1)
   partition is [low...p-1]; the right partition is [p+1...high], where p is the
   return value.
 */
-func partitionLomuto<T: Comparable>(inout a: [T], low: Int, high: Int) -> Int {
+func partitionLomuto<T: Comparable>(_ a: inout [T], low: Int, high: Int) -> Int {
   let pivot = a[high]
 
   var i = low
@@ -53,7 +55,7 @@ var list2 = [ 10, 0, 3, 9, 2, 14, 26, 27, 1, 5, 8, -1, 8 ]
 partitionLomuto(&list2, low: 0, high: list2.count - 1)
 list2
 
-func quicksortLomuto<T: Comparable>(inout a: [T], low: Int, high: Int) {
+func quicksortLomuto<T: Comparable>(_ a: inout [T], low: Int, high: Int) {
   if low < high {
     let p = partitionLomuto(&a, low: low, high: high)
     quicksortLomuto(&a, low: low, high: p - 1)
@@ -62,8 +64,6 @@ func quicksortLomuto<T: Comparable>(inout a: [T], low: Int, high: Int) {
 }
 
 quicksortLomuto(&list2, low: 0, high: list2.count - 1)
-
-
 
 // *** Hoare partitioning ***
 
@@ -75,7 +75,7 @@ quicksortLomuto(&list2, low: 0, high: list2.count - 1)
   where p is the return value. The pivot value is placed somewhere inside one
   of the two partitions, but the algorithm doesn't tell you which one or where.
 */
-func partitionHoare<T: Comparable>(inout a: [T], low: Int, high: Int) -> Int {
+func partitionHoare<T: Comparable>(_ a: inout [T], low: Int, high: Int) -> Int {
   let pivot = a[low]
   var i = low - 1
   var j = high + 1
@@ -85,7 +85,7 @@ func partitionHoare<T: Comparable>(inout a: [T], low: Int, high: Int) -> Int {
     repeat { i += 1 } while a[i] < pivot
 
     if i < j {
-      swap(&a[i], &a[j])
+        a.swapAt(i, j)
     } else {
       return j
     }
@@ -96,7 +96,7 @@ var list3 = [ 8, 0, 3, 9, 2, 14, 10, 27, 1, 5, 8, -1, 26 ]
 partitionHoare(&list3, low: 0, high: list3.count - 1)
 list3
 
-func quicksortHoare<T: Comparable>(inout a: [T], low: Int, high: Int) {
+func quicksortHoare<T: Comparable>(_ a: inout [T], low: Int, high: Int) {
   if low < high {
     let p = partitionHoare(&a, low: low, high: high)
     quicksortHoare(&a, low: low, high: p)
@@ -106,17 +106,15 @@ func quicksortHoare<T: Comparable>(inout a: [T], low: Int, high: Int) {
 
 quicksortHoare(&list3, low: 0, high: list3.count - 1)
 
-
-
 // *** Randomized sorting ***
 
 /* Returns a random integer in the range min...max, inclusive. */
-public func random(min min: Int, max: Int) -> Int {
+public func random(min: Int, max: Int) -> Int {
   assert(min < max)
   return min + Int(arc4random_uniform(UInt32(max - min + 1)))
 }
 
-func quicksortRandom<T: Comparable>(inout a: [T], low: Int, high: Int) {
+func quicksortRandom<T: Comparable>(_ a: inout [T], low: Int, high: Int) {
   if low < high {
     let pivotIndex = random(min: low, max: high)
     (a[pivotIndex], a[high]) = (a[high], a[pivotIndex])
@@ -131,17 +129,15 @@ var list4 = [ 10, 0, 3, 9, 2, 14, 8, 27, 1, 5, 8, -1, 26 ]
 quicksortRandom(&list4, low: 0, high: list4.count - 1)
 list4
 
-
-
 // *** Dutch national flag partioning ***
 
 /*
   Swift's swap() doesn't like it if the items you're trying to swap refer to
   the same memory location. This little wrapper simply ignores such swaps.
 */
-public func swap<T>(inout a: [T], _ i: Int, _ j: Int) {
+public func swap<T>(_ a: inout [T], _ i: Int, _ j: Int) {
   if i != j {
-    swap(&a[i], &a[j])
+    a.swapAt(i, j)
   }
 }
 
@@ -149,7 +145,7 @@ public func swap<T>(inout a: [T], _ i: Int, _ j: Int) {
   Dutch national flag partitioning.
   Returns a tuple with the start and end index of the middle area.
 */
-func partitionDutchFlag<T: Comparable>(inout a: [T], low: Int, high: Int, pivotIndex: Int) -> (Int, Int) {
+func partitionDutchFlag<T: Comparable>(_ a: inout [T], low: Int, high: Int, pivotIndex: Int) -> (Int, Int) {
   let pivot = a[pivotIndex]
 
   var smaller = low
@@ -175,7 +171,7 @@ var list5 = [ 10, 0, 3, 9, 2, 14, 8, 27, 1, 5, 8, -1, 26 ]
 partitionDutchFlag(&list5, low: 0, high: list5.count - 1, pivotIndex: 10)
 list5
 
-func quicksortDutchFlag<T: Comparable>(inout a: [T], low: Int, high: Int) {
+func quicksortDutchFlag<T: Comparable>(_ a: inout [T], low: Int, high: Int) {
   if low < high {
     let pivotIndex = random(min: low, max: high)
     let (p, q) = partitionDutchFlag(&a, low: low, high: high, pivotIndex: pivotIndex)

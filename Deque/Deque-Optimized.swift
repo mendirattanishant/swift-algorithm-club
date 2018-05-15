@@ -7,10 +7,12 @@ public struct Deque<T> {
   private var array: [T?]
   private var head: Int
   private var capacity: Int
+  private let originalCapacity: Int
 
-  public init(capacity: Int = 10) {
+  public init(_ capacity: Int = 10) {
     self.capacity = max(capacity, 1)
-    array = .init(count: capacity, repeatedValue: nil)
+    originalCapacity = self.capacity
+    array = [T?](repeating: nil, count: capacity)
     head = capacity
   }
 
@@ -22,15 +24,15 @@ public struct Deque<T> {
     return array.count - head
   }
 
-  public mutating func enqueue(element: T) {
+  public mutating func enqueue(_ element: T) {
     array.append(element)
   }
 
-  public mutating func enqueueFront(element: T) {
+  public mutating func enqueueFront(_ element: T) {
     if head == 0 {
       capacity *= 2
-      let emptySpace = [T?](count: capacity, repeatedValue: nil)
-      array.insertContentsOf(emptySpace, at: 0)
+      let emptySpace = [T?](repeating: nil, count: capacity)
+      array.insert(contentsOf: emptySpace, at: 0)
       head = capacity
     }
 
@@ -44,7 +46,7 @@ public struct Deque<T> {
     array[head] = nil
     head += 1
 
-    if capacity > 10 && head >= capacity*2 {
+    if capacity >= originalCapacity && head >= capacity*2 {
       let amountToRemove = capacity + capacity/2
       array.removeFirst(amountToRemove)
       head -= amountToRemove

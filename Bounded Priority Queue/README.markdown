@@ -1,6 +1,6 @@
 # Bounded Priority queue
 
-A bounded priority queue is similar to a regular [priority queue](../Priority Queue/), except that there is a fixed upper bound on the number of elements that can be stored. When a new element is added to the queue while the queue is at capacity, the element with the highest priority value is ejected from the queue.
+A bounded priority queue is similar to a regular [priority queue](../Priority%20Queue/), except that there is a fixed upper bound on the number of elements that can be stored. When a new element is added to the queue while the queue is at capacity, the element with the highest priority value is ejected from the queue.
 
 ## Example
 
@@ -26,7 +26,7 @@ Suppose that we wish to insert the element `G` with priority 0.1 into this BPQ. 
 
 ## Implementation
 
-While a [heap](../Heap/) may be a really simple implementation for a priority queue, a sorted [linked list](../Linked List/) allows for **O(k)** insertion and **O(1)** deletion, where **k** is the bounding number of elements.
+While a [heap](../Heap/) may be a really simple implementation for a priority queue, a sorted [linked list](../Linked%20List/) allows for **O(k)** insertion and **O(1)** deletion, where **k** is the bounding number of elements.
 
 Here's how you could implement it in Swift:
 
@@ -35,7 +35,7 @@ public class BoundedPriorityQueue<T: Comparable> {
   private typealias Node = LinkedListNode<T>
 
   private(set) public var count = 0
-  private var head: Node?
+  fileprivate var head: Node?
   private var tail: Node?
   private var maxElements: Int
 
@@ -55,7 +55,7 @@ public class BoundedPriorityQueue<T: Comparable> {
 The `BoundedPriorityQueue` class contains a doubly linked list of `LinkedListNode` objects. Nothing special here yet. The fun stuff happens in the `enqueue()` method:
 
 ```swift
-public func enqueue(value: T) {
+public func enqueue(_ value: T) {
   if let node = insert(value, after: findInsertionPoint(value)) {
     // If the newly inserted node is the last one in the list, then update
     // the tail pointer.
@@ -71,7 +71,7 @@ public func enqueue(value: T) {
   }
 }
 
-private func insert(value: T, after: Node?) -> Node? {
+private func insert(_ value: T, after: Node?) -> Node? {
   if let previous = after {
 
     // If the queue is full and we have to insert at the end of the list,
@@ -105,7 +105,7 @@ private func insert(value: T, after: Node?) -> Node? {
 
 /* Find the node after which to insert the new value. If this returns nil,
    the new value should be inserted at the head of the list. */
-private func findInsertionPoint(value: T) -> Node? {
+private func findInsertionPoint(_ value: T) -> Node? {
   var node = head
   var prev: Node? = nil
 

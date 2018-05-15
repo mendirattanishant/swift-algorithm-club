@@ -1,4 +1,9 @@
-func breadthFirstSearch(graph: Graph, source: Node) -> [String] {
+// last checked with Xcode 9.0b4
+#if swift(>=4.0)
+print("Hello, Swift 4!")
+#endif
+
+func breadthFirstSearch(_ graph: Graph, source: Node) -> [String] {
   var queue = Queue<Node>()
   queue.enqueue(source)
 
@@ -18,8 +23,6 @@ func breadthFirstSearch(graph: Graph, source: Node) -> [String] {
 
   return nodesExplored
 }
-
-
 
 let graph = Graph()
 
@@ -41,7 +44,6 @@ graph.addEdge(nodeC, neighbor: nodeG)
 graph.addEdge(nodeE, neighbor: nodeH)
 graph.addEdge(nodeE, neighbor: nodeF)
 graph.addEdge(nodeF, neighbor: nodeG)
-
 
 let nodesExplored = breadthFirstSearch(graph, source: nodeA)
 print(nodesExplored)

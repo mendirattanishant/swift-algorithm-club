@@ -7,8 +7,8 @@
   Enqueuing and dequeuing are O(1) operations.
 */
 public struct Queue<T> {
-  private var array = [T?]()
-  private var head = 0
+  fileprivate var array = [T?]()
+  fileprivate var head = 0
 
   public var isEmpty: Bool {
     return count == 0
@@ -18,7 +18,7 @@ public struct Queue<T> {
     return array.count - head
   }
 
-  public mutating func enqueue(element: T) {
+  public mutating func enqueue(_ element: T) {
     array.append(element)
   }
 
@@ -37,7 +37,7 @@ public struct Queue<T> {
     return element
   }
 
-  public func peek() -> T? {
+  public var front: T? {
     if isEmpty {
       return nil
     } else {
